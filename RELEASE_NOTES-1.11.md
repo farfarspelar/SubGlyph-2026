@@ -1,33 +1,33 @@
 # SubGlyph 2026 — version 1.11
 
-## Ändringar
+## Changes
 
-- Enbart Okuma XYZ+C ändras i denna version. X-värden för instick,
-  frigång och rotationsfrigång skrivs som radier för huvudprogrammets
-  G138-läge. Inmatade diametermått i programmet behålls.
-- G138 och G136 postas inte; huvudprogrammen styr dessa lägen.
-- XYZ+C anger G19 för cirkelinterpolering i Y/Z-planet.
-- Standardtypsnittets definierade cirkelbågar (O, C och 0) körs med
-  G2/G3 utan lyft och återinstick mellan sammanhängande bågdelar.
-  Runda former använder bågar på högst 180 grader. Elliptiskt skalade
-  former behåller sina cirkelbågsapproximationer.
-- Okuma XZ+C och frontgravering samt Fanuc- och Siemens-postning
-  behåller tidigare beteende.
+- Only Okuma XYZ+C is changed in this version. X values for plunging,
+  clearance and rotational clearance are output as radii for the main program's
+  G138 mode. Diameter dimensions entered in the application are retained.
+- G138 and G136 are not posted; the main program controls these modes.
+- XYZ+C specifies G19 for circular interpolation in the Y/Z plane.
+- The standard font's defined circular arcs (O, C and 0) use G2/G3 without
+  retraction and re-plunging between connected arc segments. Round shapes use
+  arcs of at most 180 degrees. Elliptically scaled shapes retain their
+  circular-arc approximations.
+- Okuma XZ+C and front-face engraving, as well as FANUC and Siemens posting,
+  retain their previous behavior.
 
-## Verifiering
+## Verification
 
-73 automatiska regressionstester godkända, inklusive radiella X-lägen,
-rotationsfrigång, sammanhängande små cirkelbågar, spegling och oförändrad
-XZ+C-postning. G138/G136 kontrolleras vara frånvarande i NC-utmatningen.
-Den nya XYZ+C-postningen har ännu inte verifierats på maskin.
-SIEMENS SINUMERIK-stödet är implementerat men har ännu inte verifierats
-på en fysisk Siemens-styrd maskin.
+73 automated regression tests passed, covering radial X positions, rotational
+clearance, connected small circular arcs, mirroring and unchanged XZ+C posting.
+The absence of G138/G136 in NC output is checked.
+The updated XYZ+C posting has not yet been verified on a physical machine.
+SIEMENS SINUMERIK support is implemented but has not yet been verified on a physical Siemens-controlled machine.
 
-Huvudprogrammet ansvarar för G138/G136, C-axelaktivering, frigång,
-absolut programmering och enhetsläge. G19 och G94 ligger kvar efter
-retur; huvudprogrammet ansvarar för efterföljande plan- och matningsval.
+The main program is responsible for G138/G136, C-axis activation, clearance,
+absolute programming and unit mode. G19 and G94 remain active after return;
+the main program is responsible for subsequent plane and feed-mode selections.
 
 ## Distribution
 
-Linux x86-64 levereras som programfil och tar.gz. Windows x86-64 levereras
-som exe och zip. SHA-256-summor levereras separat. Byggena är osignerade.
+Linux x86-64 is provided as an executable and a tar.gz archive. Windows x86-64
+is provided as an exe and a zip archive. SHA-256 checksums are provided separately.
+The builds are unsigned.

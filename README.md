@@ -1,254 +1,266 @@
 # SubGlyph 2026
 
-**Version 1.11 — nuvarande stabila huvudversion**
+**Version 1.11 — current stable release**
 
-SubGlyph 2026 är en kostnadsfri grafisk NC-generator för märkning och gravering.
-Programmet skapar underprogram för FANUC, OKUMA OSP och SIEMENS SINUMERIK från en enkelstrecksfont och
-visar märkningen på detaljen i en interaktiv 3D-förhandsvisning.
+SubGlyph 2026 is a free graphical NC generator for marking and engraving.
+It generates subprograms for FANUC, OKUMA OSP and SIEMENS SINUMERIK using a
+single-stroke font and displays the markings on the workpiece in an interactive
+3D preview.
 
-SubGlyph är skapat av **Kristian Simontaival**. Projektet kan stödjas via
+The application supports **Swedish, Finnish, German, French, English, Bosnian
+and Polish**. This documentation is in English; the application remains multilingual.
+
+SubGlyph was created by **Kristian Simontaival**. You can support the project via
 [Buy Me a Coffee](https://buymeacoffee.com/FarfarSpelar).
 
 > **Simple should remain simple. Don't overcomplicate things.**
 
-## Viktigt om säkerhet
+## Important safety information
 
-SubGlyph skapar **underprogram**, inte kompletta huvudprogram. Innan ett
-genererat underprogram anropas måste huvudprogrammet ange och verifiera:
+SubGlyph generates **subprograms**, not complete main programs. Before calling a
+generated subprogram, the main program must specify and verify:
 
-- verktygsval och verktygskorrigering;
-- spindelvarvtal och rotationsriktning;
-- arbets- och interpolationsplan;
-- enhetsläge, exempelvis G20 eller G21;
-- nollpunkt och koordinatsystem;
-- första säkra förpositionering;
-- maskinens C-axelfunktioner och övriga maskinspecifika M-/G-koder.
+- tool selection and tool compensation;
+- spindle speed and direction of rotation;
+- working and interpolation planes;
+- unit mode, such as G20 or G21;
+- work origin and coordinate system;
+- initial safe positioning;
+- the machine's C-axis functions and other machine-specific M/G codes.
 
-SubGlyph skriver inte G17, G20 eller G21. Okuma XYZ+C anger G19 för
-cirkelinterpolering i Y/Z-planet. Huvudprogrammet ansvarar för övriga
-planval, enhetsläge och återställning efter underprogrammet.
+SubGlyph does not output G17, G20 or G21. Okuma XYZ+C specifies G19 for circular
+interpolation in the Y/Z plane. The main program is responsible for other plane
+selections, unit mode and restoring the required modes after the subprogram.
 
-> **Varning:** Granska och simulera alltid den genererade NC-koden. Torrkör
-> därefter med reducerad matning innan programmet används i produktion.
-> Kontrollera särskilt axelriktningar, nollpunkter, rotationsfrigång,
-> cirkelinterpolering och styrsystemets programspråk.
+> **Warning:** Always review and simulate the generated NC code. Then perform a
+> reduced-feed dry run before using the program in production. Pay particular
+> attention to axis directions, work origins, rotational clearance, circular
+> interpolation and the controller's programming language.
 
-## Huvudfunktioner
+## Main features
 
-- FANUC (ISO)-, OKUMA OSP (ISO)- och SIEMENS SINUMERIK (ISO)-postning.
-- Ett gemensamt program eller individuella programnummer per märkpost.
-- Upp till sex märkposter.
-- Automatisk sammanslagning av märkposter med samma O-nummer.
-- Rund mantelmärkning med `XZ+C`.
-- Plan sidmärkning med `XYZ+C` och C-indexering.
-- Frontplansmärkning i X/Y med Z som djupaxel och C-indexering.
-- Runda, sexkantiga och rektangulära ämnen.
-- Individuell position, storlek, rotation, spegling och Z-riktning per märkpost.
-- Valbar rotationsaxeladress, exempelvis `C` eller `CS`, för genererad NC-kod.
-- Gravyrstöd för dubbelt citattecken (`"`).
-- Individuellt, justerbart teckenmellanrum för varje märktext.
-- Märkning längs Z-axeln eller runt omkretsen på mantelytor.
-- Direkta och tydliga matningsvärden i varje genererat program.
-- MM- och INCH-visning med konvertering av inmatade värden.
-- Svenska, finska, tyska, franska, engelska, bosniska och polska.
-- Interaktiv 3D-preview med orbit, detaljrotation och zoom.
-- Projektfiler i `.SG`-format.
-- Valfri öppning av genererade program i systemets textredigerare.
-- Lokaliserad versions- och tidskommentar i varje NC-program.
-- Programikon i distributionerna.
+- FANUC (ISO), OKUMA OSP (ISO) and SIEMENS SINUMERIK (ISO) posting.
+- One shared program or individual program numbers for each marking entry.
+- Up to six marking entries.
+- Automatic merging of marking entries with the same O number.
+- Cylindrical surface marking with `XZ+C`.
+- Flat side marking with `XYZ+C` and C-axis indexing.
+- Front-face marking in X/Y with Z as the depth axis and C-axis indexing.
+- Round, hexagonal and rectangular stock.
+- Individual position, size, rotation, mirroring and Z direction for each entry.
+- Selectable rotary axis address, such as `C` or `CS`, in generated NC code.
+- Engraving support for the double quotation mark (`"`).
+- Individually adjustable character spacing for each marking text.
+- Marking along the Z axis or around the circumference of cylindrical surfaces.
+- Explicit feed values in every generated program.
+- MM and INCH display with conversion of entered values.
+- Swedish, Finnish, German, French, English, Bosnian and Polish.
+- Interactive 3D preview with orbit, workpiece rotation and zoom.
+- Project files in `.SG` format.
+- Optional opening of generated programs in the system text editor.
+- Localized version and timestamp comments in every NC program.
+- Application icon included in distributions.
 
-## Systemkrav
+## System requirements
 
-Färdiga distributioner kräver ingen separat Pythoninstallation.
+Prebuilt distributions do not require a separate Python installation.
 
-- Linuxdistributionen är byggd för x86-64.
-- Windowsdistributionen är byggd för 64-bitars Windows.
-- macOS-versionen byggs lokalt på en Mac och kan anpassas för aktuell
-  Intel- eller Apple Silicon-miljö.
+- The Linux distribution is built for x86-64.
+- The Windows distribution is built for 64-bit Windows.
+- The macOS version is built locally on a Mac and can be adapted to the target
+  Intel or Apple Silicon environment.
 
-För körning från källkod behövs Python 3.10 eller senare, Tkinter och Pillow.
-Runtime-beroenden finns i `requirements.txt`; `requirements-build.txt` lägger
-till PyInstaller för paketering. Tester har körts med Python 3.12.
+Running from source requires Python 3.10 or later, Tkinter and Pillow.
+Runtime dependencies are listed in `requirements.txt`; `requirements-build.txt`
+adds PyInstaller for packaging. Tests have been run with Python 3.12.
 
-## Snabbstart
+## Quick start
 
-1. Starta SubGlyph 2026.
-2. Välj språk och `MM` eller `INCH`.
-3. Välj FANUC (ISO), OKUMA OSP (ISO) eller SIEMENS SINUMERIK (ISO).
-4. Ange projektnamn, programnummer och programkommentar.
-5. Välj märkyta, aktiva axlar och ämnestyp.
-6. Ange ämnesmått, märkdjup, frigång och matningar.
-7. Fyll i en eller flera märkposter.
-8. Kontrollera resultatet i 3D-vyn.
-9. Klicka på **Generera NC-program**.
-10. Granska, simulera och torrkör programmet från ett korrekt förberett
-    huvudprogram.
+1. Start SubGlyph 2026.
+2. Select a language and `MM` or `INCH`.
+3. Select FANUC (ISO), OKUMA OSP (ISO) or SIEMENS SINUMERIK (ISO).
+4. Enter the project name, program number and program comment.
+5. Select the marking surface, active axes and stock type.
+6. Enter stock dimensions, marking depth, clearance and feeds.
+7. Fill in one or more marking entries.
+8. Check the result in the 3D view.
+9. Click **Generate NC program**.
+10. Review, simulate and dry-run the program using a correctly prepared
+    main program.
 
-## Gränssnitt
+## User interface
 
 ### Program
 
-Här väljs styrsystem och hur programmen ska organiseras.
+Select the controller and how the programs should be organized here.
 
-- **FANUC/OKUMA OSP/SIEMENS SINUMERIK:** väljer ISO-postprocessor.
-- **Projektnamn:** används som projektidentitet.
-- **Programnummer:** används som O-nummer för ett gemensamt program.
-- **Separata program:** aktiverar ett programnummer per märkpost.
-- **Kommentar:** skrivs efter O-numret i programhuvudet.
-- **Öppna efter generering:** öppnar sparade filer i systemets textredigerare.
+- **FANUC/OKUMA OSP/SIEMENS SINUMERIK:** selects the ISO postprocessor.
+- **Project name:** identifies the project.
+- **Program number:** supplies the O number for a shared program.
+- **Separate programs:** enables one program number per marking entry.
+- **Comment:** appears after the O number in the program header.
+- **Open after generation:** opens saved files in the system text editor.
 
-Programfliken påminner också om att verktyg, varvtal, arbetsplan och första
-förpositionering måste definieras i huvudprogrammet.
+The Program tab also reminds you that the tool, spindle speed, working plane
+and initial positioning must be defined in the main program.
 
-### Maskin och yta
+### Machine and surface
 
-Här väljs spindel, märkyta, aktiva axlar, ämnestyp, djup, frigång och
-matningsmetod.
+Select the spindle, marking surface, active axes, stock type, depth, clearance
+and feed method here.
 
-- **Märkyta:** `Runt en axel` eller `Frontplan`.
-- **Aktiva axlar:** `XZ+C` eller `XYZ+C`, beroende på märkyta och Y-axel.
-- **Maskinen har Y-axel:** krävs för `XYZ+C` och frontplansbearbetning.
-- **Djupets riktning:** anger positiv eller negativ riktning för djupaxeln.
-- **Ämnestyp:** Rund, Sexkant eller Rektangel.
-- **Ämneslängd:** styr arbetsstyckets proportioner i 3D-förhandsvisningen men
-  påverkar inte NC-koden.
-- **Märkdjup:** radiellt eller axiellt ingrepp beroende på vald märkyta.
-- **Frigång:** normalt säkerhetsavstånd från den valda ytan.
+- **Marking surface:** `Around an axis` or `Front face`.
+- **Active axes:** `XZ+C` or `XYZ+C`, depending on the surface and Y axis.
+- **Machine has Y axis:** required for `XYZ+C` and front-face machining.
+- **Depth direction:** sets the positive or negative direction of the depth axis.
+- **Stock type:** Round, Hexagonal or Rectangular.
+- **Stock length:** controls workpiece proportions in the 3D preview but does
+  not affect the NC code.
+- **Marking depth:** radial or axial engagement, depending on the selected surface.
+- **Clearance:** normal safety distance from the selected surface.
 
-### Märktext
+### Marking text
 
-Fältet **Programnamn** aktiveras för OKUMA OSP (ISO) och bestämmer `.SSB`-filens namn.
-Det påverkar inte O-numret inne i programmet.
+The **Program name** field is enabled for OKUMA OSP (ISO) and determines the
+`.SSB` filename. It does not affect the O number inside the program.
 
-Upp till sex märkposter kan definieras. Varje post kan ha:
+Up to six marking entries can be defined. Each entry can have:
 
-- egen märktext;
-- eget programnummer i läget separata program;
-- X/Z-position beroende på märkyta;
-- Y-position när Y används;
-- C-vinkel;
-- teckenhöjd och teckenbredd;
-- textrotation;
-- individuell spegling.
+- its own marking text;
+- its own program number in separate-program mode;
+- an X/Z position, depending on the marking surface;
+- a Y position when Y is used;
+- a C angle;
+- character height and width;
+- text rotation;
+- individual mirroring.
 
-Tomma märkposter hoppas över vid postningen.
+Empty marking entries are skipped during posting.
 
-## Bearbetningslägen
+## Machining modes
 
-### XZ+C — rund mantelyta
+### XZ+C — cylindrical surface
 
-Detta läge används för gravering runt ett runt ämne.
+Use this mode for engraving around round stock.
 
-- X anger graveringsdjup och frigång.
-- Z anger position längs detaljens längdaxel. För text längs Z-axeln avser
-  ZPos textens vänsterkant, inte dess centrum. `ZPos -20` ger därför Z-20 som
-  den innersta koordinaten även när texten roteras 180° med Z-riktning Z-.
-- C formar märkningen runt mantelytan.
-- Y är låst.
-- Rundade former approximeras med G1-segment eftersom Z/C inte utgör ett
-  normalt kartesiskt cirkelplan.
+- X specifies engraving depth and clearance.
+- Z specifies the position along the workpiece's longitudinal axis. For text
+  along the Z axis, ZPos refers to the text's left edge, not its center.
+  `ZPos -20` therefore gives Z-20 as the innermost coordinate even when the
+  text is rotated 180° with Z direction Z-.
+- C forms the marking around the cylindrical surface.
+- Y is locked.
+- Rounded shapes are approximated with G1 segments because Z/C is not a
+  conventional Cartesian circular interpolation plane.
 
-Med diameter 50, märkdjup 0,5 och frigång 2 blir gravyrnivån X49.5 och normal
-frigång X52.
+With diameter 50, marking depth 0.5 and clearance 2, the engraving level is
+X49.5 and normal clearance is X52.
 
-### XYZ+C — plan sida på rund-, sexkant- eller rektangelämne
+### XYZ+C — flat side of round, hexagonal or rectangular stock
 
-Detta läge används när en plan, C-indexerad sida ska märkas.
+Use this mode to mark a flat, C-indexed side.
 
-- C väljer detaljens sida eller vinkel och står sedan stilla under märkningen.
-- Z och Y formar gravyrbanan på ytan.
-- X anger djup och normal ytfrigång.
-- Samma C-värde indexeras inte på nytt mellan märkposter.
-- Mellan tecken och separata streck används normal ytfrigång.
-- Före indexering till ett nytt C-område används rotationsfrigång.
+- C selects the workpiece side or angle and remains stationary during marking.
+- Z and Y form the engraving path on the surface.
+- X specifies depth and normal surface clearance.
+- The same C value is not indexed again between marking entries.
+- Normal surface clearance is used between characters and separate strokes.
+- Rotational clearance is used before indexing to a new C region.
 
-Rotationsfrigång för sexkant:
+Rotational clearance for hexagonal stock:
 
 ```text
 2 × NV / √3 + frigång
 ```
 
-Rotationsfrigång för rektangel:
+Rotational clearance for rectangular stock:
 
 ```text
 √(bredd² + höjd²) + frigång
 ```
 
-Explicit definierade fontbågar postas med G2/G3 och J/K-offset i Y/Z.
-Huvudprogrammet måste välja rätt interpolationsplan; SubGlyph skriver inte G19.
-Om teckenbredd och teckenhöjd skalar en båge elliptiskt delas formen upp i
-flera korta, cirkulära G2/G3-block. Det undviker radietoleransfel utan att
-ersätta bågen med G1-segment.
+In these formulas, `NV` is the across-flats dimension, `bredd` is width,
+`höjd` is height and `frigång` is clearance.
 
-### Frontplan — X/Y-bana med Z-djup
+Explicitly defined font arcs are posted with G2/G3 and J/K offsets in Y/Z.
+The main program must select the correct interpolation plane, except that
+Okuma XYZ+C explicitly outputs G19. If character width and height scale an arc
+elliptically, the shape is split into several short circular G2/G3 blocks.
+This avoids radius-tolerance errors without replacing the arc with G1 segments.
 
-Frontplan används för gravering på detaljens ändyta.
+### Front face — X/Y path with Z depth
 
-- X och Y formar gravyrbanan.
-- Z anger graveringsdjup och frigång.
-- C indexerar märkpunkt och text runt detaljens centrum.
-- Textrotation roterar texten ytterligare kring dess egen märkpunkt.
-- Samma C-värde indexeras inte på nytt mellan märkposter.
-- Frontplan kräver en maskin med Y-axel.
+Use front-face mode to engrave the end face of the workpiece.
 
-Explicit definierade fontbågar postas med G2/G3 och I/J-offset i X/Y.
-Huvudprogrammet måste välja rätt interpolationsplan; SubGlyph skriver inte G17.
+- X and Y form the engraving path.
+- Z specifies engraving depth and clearance.
+- C indexes the marking position and text around the workpiece center.
+- Text rotation rotates the text further around its own marking position.
+- The same C value is not indexed again between marking entries.
+- Front-face mode requires a machine with a Y axis.
 
-Böjd text via böjningsradie är ännu inte aktiverad för frontplanspostning.
-Fältet ska därför lämnas tomt i version 1.11.
+Explicitly defined font arcs are posted with G2/G3 and I/J offsets in X/Y.
+The main program must select the correct interpolation plane; SubGlyph does
+not output G17.
 
-## Ämnestyper
+Curved text using a bend radius is not yet enabled for front-face posting.
+Leave this field empty in version 1.11.
 
-- **Rund:** anges med detaljdiameter.
-- **Sexkant:** anges med nyckelvidd, `NV`.
-- **Rektangel:** anges med bredd och höjd. Lika värden ger ett kvadratiskt ämne.
+## Stock types
 
-För sexkant och rektangel beräknas avståndet till den indexerade ytan från
-ämnesmåtten och C-vinkeln. Rotationsfrigången tar hänsyn till ämnets största
-radie så att verktyget går fritt innan detaljen vrids.
+- **Round:** specified by workpiece diameter.
+- **Hexagonal:** specified by the across-flats dimension, `NV`.
+- **Rectangular:** specified by width and height. Equal values produce square stock.
 
-## Textgeometri och bågar
+For hexagonal and rectangular stock, the distance to the indexed surface is
+calculated from the stock dimensions and C angle. Rotational clearance takes
+the stock's maximum radius into account so that the tool is clear before the
+workpiece rotates.
 
-SubGlyph använder en enkelstrecksfont avsedd för gravering. Tecknen byggs av
-linjer och, där explicit bågdata finns, cirkelbågar.
+## Text geometry and arcs
 
-- I `XZ+C` används G1-segment för rundningar.
-- I plan `XYZ+C` används G2/G3 med J/K där bågdata finns.
-- I Frontplan används G2/G3 med I/J där bågdata finns.
-- Tecknen `O`, `0` och `C` har explicita bågdefinitioner i version 1.11.
-- Dubbelt citattecken (`"`) graveras som två korta separata streck.
-- Små bokstäver normaliseras till motsvarande versaler i gravyrfonten.
-- Övriga rundningar representeras av korta G1-segment.
+SubGlyph uses a single-stroke font intended for engraving. Characters consist
+of lines and, where explicit arc data is available, circular arcs.
 
-Fältet **Mellanr.** på fliken Märktext anger det fria avståndet i aktuell enhet
-mellan två teckenkanter på den aktuella raden. `0,4` ger alltså 0,4 mm mellan
-varje tecken när MM är valt. `0` ger inget extra fritt avstånd. Värdet får inte
-vara negativt och sparas separat för varje märktext i `.SG`-projektet.
+- In `XZ+C`, rounded shapes use G1 segments.
+- In planar `XYZ+C`, G2/G3 with J/K is used where arc data is available.
+- In front-face mode, G2/G3 with I/J is used where arc data is available.
+- The characters `O`, `0` and `C` have explicit arc definitions in version 1.11.
+- The double quotation mark (`"`) is engraved as two short, separate strokes.
+- Lowercase letters are normalized to their uppercase equivalents in the engraving font.
+- Other rounded shapes are represented by short G1 segments.
 
-## Rotationsaxelns NC-adress
+The **Spacing** field on the Marking text tab specifies the free distance,
+in the current unit, between adjacent character edges on that row. `0,4`
+therefore gives 0.4 mm between characters when MM is selected. `0` adds no
+extra free space. The value cannot be negative and is saved separately for
+each marking text in the `.SG` project.
 
-Fältet **C-axel** på fliken Märktext bestämmer vilken adress som används för
-alla rotationsrörelser. Standardvärdet är `C`. Maskiner som använder en annan
-adress kan exempelvis ställas till `CS`, vilket gör att vinkeln 60 grader postas
-som `CS60` i stället för `C60`. Värdet sparas i `.SG`-projektet; äldre projekt
-som saknar inställningen använder automatiskt `C`.
+## Rotary axis NC address
 
-SubGlyph lägger inte till ett extra G1 enbart för att lämna G2/G3-läge.
-Frånrörelsen sker med G0. Detta ska verifieras mot den FANUC-, OKUMA OSP-
-eller SIEMENS SINUMERIK-variant som används.
+The **C axis** field on the Marking text tab determines the address used for
+all rotary movements. The default is `C`. Machines that use a different address
+can be configured with, for example, `CS`, which posts a 60-degree angle as
+`CS60` instead of `C60`. The value is saved in the `.SG` project; older projects
+without this setting automatically use `C`.
 
-## Programnummer och filer
+SubGlyph does not add an extra G1 solely to leave G2/G3 mode. Retraction uses
+G0. Verify this behavior against the FANUC, OKUMA OSP or SIEMENS SINUMERIK
+variant in use.
 
-### Gemensamt program
+## Program numbers and files
 
-Alla aktiva märkposter skrivs i det programnummer som anges på Programfliken.
+### Shared program
 
-### Separata program
+All active marking entries are written under the program number specified on
+the Program tab.
 
-Varje märkpost får ett eget programnummerfält. Poster med samma O-nummer slås
-automatiskt ihop i samma program och behåller sin ordning.
+### Separate programs
 
-Exempel:
+Each marking entry has its own program number field. Entries with the same
+O number are automatically merged into one program, preserving their order.
+
+Example:
 
 ```text
 Märkpost 1: 1200
@@ -256,218 +268,221 @@ Märkpost 2: 1200
 Märkpost 3: 1201
 ```
 
-Resultatet blir ett program `O1200` med de två första posterna och ett program
-`O1201` med den tredje.
+Here, `Märkpost` means marking entry. The result is one program `O1200` with
+the first two entries and one program `O1201` with the third.
 
 ### FANUC (ISO)
 
-- Filnamnet är `O` följt av programnumret, exempelvis `O1000`.
-- Filer sparas utan filändelse.
-- En fil skapas per unikt O-nummer i läget separata program.
-- Underprogram avslutas med `M99`.
+- The filename is `O` followed by the program number, such as `O1000`.
+- Files are saved without a filename extension.
+- One file is created per unique O number in separate-program mode.
+- Subprograms end with `M99`.
 
 ### OKUMA OSP (ISO)
 
-- Filen sparas som `Programnamn.SSB`, utifrån fältet Programnamn på fliken Märktext.
-- Flera O-program kan ligga i samma `.SSB`-fil.
-- Varje underprogram anger `G94` före märkningen så att F-värden tolkas
-  som matning per minut även om huvudprogrammet använder `G95`.
-- C-rörelser får explicit `M15` (positiv riktning) eller `M16` (negativ
-  riktning). C-målen skrivs inom 0–360° och oförändrade C-mål utelämnas.
-  Riktningen för gravyrdrag beräknas före vinkelomräkningen, även över noll.
-- Första C-positioneringen använder `M15` eftersom ingångsvinkeln är okänd.
-  Efterföljande snabbförflyttningar använder kortaste vägen. Huvudprogrammet
-  måste säkerställa frigång vid inträdet och absolut programmering.
-- En enskild graveringsrörelse på ett helt varv eller mer avvisas.
-- För XZ+C korrigeras Okumas textorientering genom att vända C-avvikelsen
-  kring märkningens indexläge före M15/M16-beräkningen. Ingen fast
-  vinkelförskjutning läggs till. Frontplan behåller sin tidigare postning.
-- XYZ+C anger `G19` före rörelserna. X-värden för instick,
-  frigång och rotationsfrigång skrivs som radier (hälften av de interna
-  diametermåtten). Y/Z och C-indexeringen behåller sina mått.
-- I XYZ+C använder enkelstrecksfontens definierade cirkelbågar (O, C och 0) G2/G3.
-  Runda former skrivs med bågar på högst 180 grader. Elliptiskt skalade
-  former behåller sina cirkelbågsapproximationer. Sammanhängande bågar körs
-  utan mellanliggande lyft och återinstick.
-- Systemtypsnittens rasterkonturer och XZ+C:s Z/C-rörelser använder fortsatt
-  G1. Dessa banor kan inte generellt ersättas med cirkelbågar i G17/G19.
-- `G138` och `G136` postas inte. Huvudprogrammet styr dessa lägen och
-  ska aktivera `G138` före XYZ+C-gravering. `G19` ligger kvar efter retur;
-  huvudprogrammet ansvarar för efterföljande planval.
-- Underprogram avslutas med `RTS`.
-- `G94` är kvar efter retur. Huvudprogrammet måste ange `G95` och lämpligt
-  F-värde innan efterföljande bearbetning som kräver matning per varv.
+- The file is saved as `Programnamn.SSB`, using the Program name field on the
+  Marking text tab (`Programnamn` means program name).
+- Several O programs can reside in the same `.SSB` file.
+- Each subprogram specifies `G94` before marking so that F values are
+  interpreted as feed per minute even if the main program uses `G95`.
+- C movements receive explicit `M15` (positive direction) or `M16` (negative
+  direction). C targets are written within 0–360°, and unchanged C targets
+  are omitted. Engraving-stroke direction is calculated before angle conversion,
+  including movements across zero.
+- Initial C positioning uses `M15` because the entry angle is unknown.
+  Subsequent rapid movements take the shortest path. The main program must
+  ensure clearance on entry and absolute programming.
+- A single engraving movement of one full revolution or more is rejected.
+- For XZ+C, Okuma text orientation is corrected by reversing the C deviation
+  around the marking's index position before calculating M15/M16. No fixed
+  angular offset is added. Front-face posting retains its previous behavior.
+- XYZ+C specifies `G19` before movement. X values for plunging, clearance and
+  rotational clearance are output as radii (half the internal diameter values).
+  Y/Z and C indexing retain their dimensions.
+- In XYZ+C, the single-stroke font's defined circular arcs (O, C and 0) use G2/G3.
+  Round shapes use arcs of at most 180 degrees. Elliptically scaled shapes
+  retain their circular-arc approximations. Connected arcs run without
+  intermediate retractions and re-plunges.
+- System-font raster contours and XZ+C's Z/C movements continue to use G1.
+  These paths cannot generally be replaced with circular arcs in G17/G19.
+- `G138` and `G136` are not posted. The main program controls these modes and
+  must activate `G138` before XYZ+C engraving. `G19` remains active after return;
+  the main program is responsible for subsequent plane selection.
+- Subprograms end with `RTS`.
+- `G94` remains active after return. The main program must specify `G95` and an
+  appropriate F value before subsequent machining that requires feed per revolution.
+
+The updated Okuma XYZ+C posting has not yet been verified on a physical machine.
 
 ### SIEMENS SINUMERIK (ISO)
 
-SIEMENS SINUMERIK-stödet är implementerat men har ännu inte verifierats på en fysisk Siemens-styrd maskin.
+SIEMENS SINUMERIK support is implemented but has not yet been verified on a physical Siemens-controlled machine.
 
-- Filnamnet baseras på programnumret och får filändelsen `.spf`.
-- En fil skapas per unikt O-nummer i läget separata program.
-- Underprogram avslutas med `M17`.
+- The filename is based on the program number and has the `.spf` extension.
+- One file is created per unique O number in separate-program mode.
+- Subprograms end with `M17`.
 
-## Genererade kommentarer
+## Generated comments
 
-Varje program får en lokaliserad kommentar med produktversion samt datum och
-klockslag. Kommentarerna skrivs utan språkspecifika specialtecken för bättre
-kompatibilitet med äldre styrsystem.
+Each program receives a localized comment containing the product version,
+date and time. Comments omit language-specific special characters for better
+compatibility with older controllers.
 
 ```text
 (CREATED WITH SUBGLYPH VERSION 1.11)
 (CREATED 2026-08-12 21:15:30)
 ```
 
-## Enheter
+## Units
 
-Knapparna `MM` och `INCH` ändrar visningsenhet och konverterar befintliga
-linjära dimensioner och matningar i projektet.
+The `MM` and `INCH` buttons change the display unit and convert existing linear
+dimensions and feeds in the project.
 
-SubGlyph skriver aldrig G20 eller G21. Huvudprogrammet måste ha samma enhetsläge
-som valdes när underprogrammet genererades.
+SubGlyph never outputs G20 or G21. The main program must use the same unit mode
+that was selected when the subprogram was generated.
 
-## Matningar
+## Feeds
 
-Två matningar används:
+Two feeds are used:
 
-- **Nedmatning:** rörelsen från frigång till graveringsdjup.
-- **Ingreppsmatning:** rörelserna som formar märkningen.
+- **Plunge feed:** movement from clearance to engraving depth.
+- **Engraving feed:** movements that form the marking.
 
-SubGlyph skriver alltid direkta F-värden. Parameterstyrd matning har avsiktligt
-tagits bort för att hålla underprogrammen enkla och minska risken att en
-maskinparameter ändras eller återanvänds av misstag.
+SubGlyph always outputs explicit F values. Parameter-driven feed has deliberately
+been removed to keep subprograms simple and reduce the risk of accidentally
+changing or reusing a machine parameter.
 
-Matningen behandlas som modal och skrivs vid den första relevanta rörelsen i en
-sammanhängande gravyrsekvens.
+Feed is treated as modal and is output on the first relevant movement of a
+continuous engraving sequence.
 
-## 3D-förhandsvisning
+## 3D preview
 
-- **Vänster musknapp + dra:** vrid och luta hela 3D-vyn.
-- **Höger musknapp + dra:** rotera detaljen runt sin längdaxel för att se andra
-  C-indexerade sidor.
-- **Mushjul:** zooma in eller ut.
-- **Solid:** visar ett skuggat ämne.
-- **Wireframe:** visar ämnets kanter.
-- **Av:** döljer ämnet men behåller märkningen.
+- **Left mouse button + drag:** orbit and tilt the entire 3D view.
+- **Right mouse button + drag:** rotate the workpiece around its longitudinal
+  axis to inspect other C-indexed sides.
+- **Mouse wheel:** zoom in or out.
+- **Solid:** displays shaded stock.
+- **Wireframe:** displays stock edges.
+- **Off:** hides the stock while retaining the marking.
 
-Förhandsvisningen visar HSP, aktiva axlar och aktuell märkgeometri. Den är ett
-visuellt hjälpmedel och ersätter inte maskinsimulering.
-Valet Lower/Upper påverkar inte textens läsriktning i förhandsvisningen;
-revolverkompenseringen görs endast i den genererade NC-koden.
-För Upper + Z- inverterar posten C-indexeringen: ett visat C60-läge skrivs som
-C-60 för att hamna på samma synliga sida i maskinen.
+The preview shows HSP, active axes and the current marking geometry. It is a
+visual aid and does not replace machine simulation.
+The Lower/Upper selection does not affect text reading direction in the preview;
+turret compensation is applied only to the generated NC code.
+For Upper + Z-, posting inverts C indexing: a displayed C60 position is output
+as C-60 to reach the same visible side on the machine.
 
-## Projektfiler
+## Project files
 
-**Arkiv → Spara projekt** sparar arbetet i `.SG`-format. **Arkiv → Ladda
-projekt** återställer det.
+**File → Save project** saves your work in `.SG` format. **File → Open project**
+restores it.
 
-Projektfilen innehåller bland annat:
+The project file includes:
 
-- språk och enhet;
-- styrsystem och programupplägg;
-- märkyta, aktiva axlar, ämnestyp och ämneslängd;
-- dimensioner, djup, frigång och matningar;
-- samtliga sex märkposter;
-- inställningen för att öppna resultatet i en textredigerare.
+- language and unit;
+- controller and program organization;
+- marking surface, active axes, stock type and stock length;
+- dimensions, depth, clearance and feeds;
+- all six marking entries;
+- the setting for opening the result in a text editor.
 
-Äldre projekt migreras när det är möjligt. Saknade märkposter fylls med tomma
-standardvärden.
+Older projects are migrated where possible. Missing marking entries are filled
+with empty default values.
 
-## Hjälp, felrapporter och önskemål
+## Help, bug reports and feature requests
 
-Menyn **Hjälp** innehåller **Rapportera ett fel**, **Skicka önskemål**,
-**Om SubGlyph** och länken **Buy Me a Coffee**. Formulären följer valt språk.
+The **Help** menu contains **Report a bug**, **Request a feature**, **About
+SubGlyph** and the **Buy Me a Coffee** link. Forms follow the selected language.
 
-Båda formulären innehåller:
+Both forms include:
 
-- den fasta mottagaren `subglyph@gmail.com`;
-- användarens e-postadress för svar;
-- ämnesrad och meddelande;
-- möjlighet att lägga till valfria bilagor;
-- möjlighet att generera och bifoga en diagnoslogg.
+- the fixed recipient `subglyph@gmail.com`;
+- the user's email address for replies;
+- a subject line and message;
+- optional attachments;
+- an option to generate and attach a diagnostic log.
 
-Felrapportformuläret kan dessutom bifoga den senaste automatiskt sparade
-crashdumpen. När formuläret slutförs skapar SubGlyph ett oskickat `.eml`-utkast
-med mottagare, svarsadress, text och bilagor och öppnar det i systemets
-e-postprogram. Användaren granskar själv utkastet och väljer **Skicka**.
-SubGlyph lagrar inga SMTP-lösenord och skickar ingenting automatiskt.
+The bug-report form can also attach the latest automatically saved crash dump.
+Completing the form creates an unsent `.eml` draft containing the recipient,
+reply address, text and attachments, and opens it in the system email client.
+The user reviews the draft and chooses **Send**. SubGlyph stores no SMTP
+passwords and sends nothing automatically.
 
-### Diagnoslogg
+### Diagnostic log
 
-Knappen **Generera logg** skapar en textfil med:
+The **Generate log** button creates a text file containing:
 
-- SubGlyph-, Python- och operativsystemsversion;
-- maskinarkitektur och körbar programsökväg;
-- aktuella projekt- och maskininställningar;
-- de senaste registrerade aktiviteterna, exempelvis försök att ladda, spara
-  eller generera ett program.
+- SubGlyph, Python and operating system versions;
+- machine architecture and executable path;
+- current project and machine settings;
+- recent recorded activities, such as attempts to load, save or generate a program.
 
-Loggen kan innehålla projektdata och märktexter. Kontrollera därför innehållet
-innan filen skickas.
+The log may contain project data and marking text. Review its contents before
+sending the file.
 
-### Crashdump
+### Crash dump
 
-Ohanterade programfel skapar automatiskt en tidsstämplad crashdump med
-systeminformation och Python-traceback. Fel i Tk-händelser kompletteras även
-med aktuella inställningar och aktivitetsloggen. Rapport- och loggfiler sparas
-i användarens lokala SubGlyph-katalog:
+Unhandled application errors automatically create a timestamped crash dump
+with system information and a Python traceback. Tk event errors also include
+current settings and the activity log. Reports and logs are saved in the user's
+local SubGlyph directory:
 
-- Linux: `$XDG_STATE_HOME/SubGlyph`, eller `~/.local/state/SubGlyph`;
+- Linux: `$XDG_STATE_HOME/SubGlyph`, or `~/.local/state/SubGlyph`;
 - Windows: `%LOCALAPPDATA%\SubGlyph`;
 - macOS: `~/Library/Application Support/SubGlyph`.
 
-## Installation och distributioner
+## Installation and distributions
 
-Hämta färdiga binärer och kontrollsummor från [GitHub Releases](https://github.com/farfarspelar/SubGlyph-2026/releases) när releasen har publicerats. Binärer ingår inte i källkodsrepot.
-Nedanstående filnamn motsvarar lokala byggresultat i `dist/`.
+Download prebuilt binaries and checksums from [GitHub Releases](https://github.com/farfarspelar/SubGlyph-2026/releases).
+Binaries are not included in the source repository. The filenames below correspond
+to local build outputs in `dist/`.
 
 ### Linux
 
-Packa upp arkivet och kör programfilen. Arkivet innehåller även
-`SubGlyph.desktop`, `SubGlyph.png` och `README.md`.
+Extract the archive and run the executable. The archive also includes
+`SubGlyph.desktop`, `SubGlyph.png` and `README.md`.
 
 - `dist/SubGlyph-2026-1.11-linux-x86_64`
 - `dist/SubGlyph-2026-1.11-linux-x86_64.tar.gz`
 
 ### Windows
 
-Windowsversionen är en fristående `.exe` med inbäddad programikon.
-ZIP-distributionen innehåller även `README.md`:
+The Windows version is a standalone `.exe` with an embedded application icon.
+The ZIP distribution also includes `README.md`:
 
 - `dist/SubGlyph-2026-1.11-windows-x86_64.exe`
 - `dist/SubGlyph-2026-1.11-windows-x86_64.zip`
 
-Windows SmartScreen kan varna för ett osignerat program. Det innebär inte i sig
-att filen är skadlig, men kontrollera alltid SHA-256-summan och distribuera
-programmet från en betrodd källa.
+Windows SmartScreen may warn about an unsigned application. This alone does
+not mean the file is malicious, but always check its SHA-256 checksum and
+obtain the program from a trusted source.
 
 ### macOS
 
-Ett macOS-bygge måste skapas på macOS eftersom PyInstaller inte kan bygga en
-macOS-app från Linux eller Windows. macOS-flödet har inte verifierats
-på denna Linuxmiljö och inget färdigt macOS-paket finns för 1.11.
-Det medföljande skriptet skapar
-`SubGlyph 2026.app` och ett ZIP-arkiv:
+A macOS build must be created on macOS because PyInstaller cannot build a
+macOS application from Linux or Windows. The macOS workflow has not been verified
+in this Linux environment, and no prebuilt macOS package is available for 1.11.
+The supplied script creates `SubGlyph 2026.app` and a ZIP archive:
 
 ```bash
 ./build_macos.sh
 ```
 
-För distribution utanför den egna datorn bör appen kodsigneras och notariseras
-med ett Apple Developer ID. Skriptet skapar:
+For distribution beyond your own computer, the application should be code-signed
+and notarized with an Apple Developer ID. The script creates:
 
 - `dist/SubGlyph 2026.app`
 - `dist/SubGlyph-2026-1.11-macos.zip`
 
-### Kontrollsummor
+### Checksums
 
-SHA-256-summor för färdiga 1.11-filer finns i:
+SHA-256 checksums for prebuilt 1.11 files are provided in:
 
 - `dist/SubGlyph-2026-1.11-SHA256SUMS.txt`
 
-## Köra från källkod
+## Running from source
 
-Installera Python 3, Tkinter och beroendena:
+Install Python 3, Tkinter and the dependencies:
 
 ```bash
 python3 -m venv .venv
@@ -476,24 +491,25 @@ python3 -m pip install -r requirements.txt
 python3 subglyph.py
 ```
 
-På Windows aktiveras miljön med `.venv\Scripts\activate` i stället.
-Tkinter installeras via operativsystemets Pythonpaket om det saknas.
-Nuvarande version startar direkt i huvudfönstret.
+On Windows, activate the environment with `.venv\Scripts\activate` instead.
+If Tkinter is missing, install it through the operating system's Python packages.
+The current version opens directly in the main window.
 
-## Automatiska tester
+## Automated tests
 
-Kör hela regressionssviten med:
+Run the complete regression suite with:
 
 ```bash
 python3 -m unittest -v
 ```
 
-Testerna täcker bland annat programformat, O-nummergruppering, enhetsansvar,
-matningar, parametrar, rotationsfrigång, frontplan samt G2/G3-geometri.
+Tests cover program formats, O-number grouping, responsibility for unit modes,
+feeds, parameters, rotational clearance, front-face machining and G2/G3 geometry,
+among other areas.
 
-## Bygga distributioner
+## Building distributions
 
-Installera byggberoenden:
+Install the build dependencies:
 
 ```bash
 python3 -m pip install -r requirements-build.txt
@@ -505,73 +521,73 @@ Linux:
 ./build_linux.sh
 ```
 
-Windows, från en Windows-Pythonmiljö:
+Windows, from a Windows Python environment:
 
 ```bat
 build_windows.bat
 ```
 
-macOS, på en Mac:
+macOS, on a Mac:
 
 ```bash
 ./build_macos.sh
 ```
 
-Linux- och Windowsbyggena inkluderar `SubGlyphIcon.png`. macOS-skriptet
-inkluderar samma programikon i applikationspaketet.
+Linux and Windows builds include `SubGlyphIcon.png`. The macOS script includes
+the same application icon in the application bundle.
 
-## Projektstruktur
+## Project structure
 
-- `subglyph.py` — gränssnitt, projektformat, preview och postprocessorflöde.
-- `nc_geometry.py` — koordinattransformation och G0/G1/G2/G3-block.
-- `vector_font.py` — enkelstrecksfont och bågdefinitioner.
-- `test_subglyph.py` — automatiska regressionstester.
-- `SubGlyphIcon.png` — program- och distributionsikon.
-- `build_linux.sh` — Linuxbygge och distributionsarkiv.
-- `build_windows.bat` — Windowsbygge.
-- `build_macos.sh` — macOS-app och ZIP-arkiv.
-- `packaging/linux/SubGlyph.desktop` — Linux-menyintegration.
+- `subglyph.py` — user interface, project format, preview and postprocessor workflow.
+- `nc_geometry.py` — coordinate transformations and G0/G1/G2/G3 blocks.
+- `vector_font.py` — single-stroke font and arc definitions.
+- `test_subglyph.py` — automated regression tests.
+- `SubGlyphIcon.png` — application and distribution icon.
+- `build_linux.sh` — Linux build and distribution archive.
+- `build_windows.bat` — Windows build.
+- `build_macos.sh` — macOS application and ZIP archive.
+- `packaging/linux/SubGlyph.desktop` — Linux menu integration.
 
-## Kända begränsningar i version 1.11
+## Known limitations in version 1.11
 
-- SIEMENS SINUMERIK-stödet är implementerat men har ännu inte verifierats på en fysisk Siemens-styrd maskin.
+- SIEMENS SINUMERIK support is implemented but has not yet been verified on a physical Siemens-controlled machine.
+- The updated Okuma XYZ+C posting has not yet been verified on a physical machine.
+- Curved text using a bend radius is not yet posted on the front face.
+- Only certain characters have explicit G2/G3 arcs; other curves use G1.
+- Okuma XYZ+C specifies G19. Interpolation planes for other modes and unit mode
+  are specified in the main program.
+- Machine-builder-specific C-axis codes must be handled in the main program.
+- The application does not replace CAM verification or machine simulation.
+- Generated code must be adapted and verified for the specific machine,
+  controller version and company safety procedures.
 
-- Böjd text med böjningsradie postas ännu inte på frontplan.
-- Endast vissa tecken har explicita G2/G3-bågar; övriga kurvor använder G1.
-- Okuma XYZ+C anger G19. Övriga lägens interpolationsplan och enhetsläget
-  anges i huvudprogrammet.
-- Maskinbyggarspecifika C-axelkoder måste hanteras i huvudprogrammet.
-- Programmet ersätter inte CAM-verifiering eller maskinsimulering.
-- Genererad kod måste anpassas och verifieras för den aktuella maskinen,
-  styrsystemsversionen och företagets säkerhetsrutiner.
+## Version status
 
-## Versionsstatus
+Version 1.11 is the current version. The focus is on stability, machine testing,
+bug fixes, documentation and packaging.
 
-Version 1.11 är den nuvarande versionen. Fokus är stabilitet, maskinprov,
-felrättningar, dokumentation och paketering.
+## Public Git release
 
+Source code, images, build scripts and current documentation belong in the Git
+repository. `build/`, `dist/`, virtual environments, generated `.spec` files and
+local NC programs are excluded by `.gitignore`. Prebuilt binaries and distribution
+archives are attached to the release together with their SHA-256 checksums.
 
-## Publik Git-release
+Keep the version number consistent across `subglyph.py`, build scripts and
+release notes. Run the regression tests before new builds. Build on each target
+platform and check archive contents before publication.
 
-Källkod, bilder, byggskript och aktuell dokumentation hör till Git-repot.
-`build/`, `dist/`, virtuella miljöer, genererade `.spec`-filer och lokala
-NC-program undantas via `.gitignore`. Färdiga binärer och distributionsarkiv
-läggs som bilagor till releasen tillsammans med SHA-256-summorna.
-
-Behåll versionsnumret samstämmigt i `subglyph.py`, byggskripten och
-releaseanteckningarna. Kör regressionstesterna före nya byggen. Bygg för
-respektive målplattform och kontrollera arkivens innehåll innan publicering.
-
-`RELEASE_NOTES-1.11.md` beskriver aktuell release.
-README är ingången för källkodsprojektet och medföljer distributionsarkiven.
-Översättningsgranskningar kan återskapas med
+`RELEASE_NOTES-1.11.md` describes the current release. README is the entry point
+for the source project and is included in distribution archives.
+Translation review documents can be regenerated with
 `python3 generate_translation_reviews.py`.
 
-## Licens
+## License
 
 Copyright (C) 2026 Kristian Simontaival.
 
-SubGlyph distribueras under **GNU General Public License version 3
-(GPL-3.0-only)**. Se [LICENSE](LICENSE) för fullständiga villkor.
-Programmet levereras utan garanti. Vid distribution av binärer ska även
-motsvarande källkod och licensvillkor göras tillgängliga enligt licensen.
+SubGlyph is distributed under the **GNU General Public License version 3
+(GPL-3.0-only)**. See [LICENSE](LICENSE) for the full terms.
+The application is provided without warranty. When distributing binaries,
+make the corresponding source code and license terms available as required
+by the license.
