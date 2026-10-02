@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=SubGlyph 2026
+Comment=NC-generator för märkning och gravering
+Exec=SubGlyph-2026-1.11-linux-x86_64
+Icon=SubGlyph
+Terminal=false
+Categories=Graphics;Engineering;

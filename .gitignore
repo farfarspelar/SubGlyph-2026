@@ -1,0 +1,49 @@
+# Local environments and Python caches
+.build-venv/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Generated packaging files; publish binaries as release attachments
+build/
+dist/
+*.spec
+
+# Local agent settings and credentials
+.agents/
+.codex/
+.aws/
+.env
+.env.*
+!.env.example
+
+# Generated review documents and local NC projects
+TRANSLATION_REVIEW-*.md
+Temp/
+*.SG
+*.sg
+*.SSB
+*.ssb
+*.MIN
+/O[0-9]*
+/[0-9]*
+
+# Editor and OS files
+.vscode/
+.idea/
+*~
+.DS_Store
+Thumbs.db
+
+# Temporary files, crash reports and compiled binaries
+*.tmp
+*.temp
+*.bak
+*.log
+*.exe
+*.dll
+*.so
+*.dylib
+*.app/
