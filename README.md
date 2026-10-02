@@ -300,6 +300,8 @@ Resultatet blir ett program `O1200` med de två första posterna och ett program
 
 ### SIEMENS SINUMERIK (ISO)
 
+SIEMENS SINUMERIK-stödet är implementerat men har ännu inte verifierats på en fysisk Siemens-styrd maskin.
+
 - Filnamnet baseras på programnumret och får filändelsen `.spf`.
 - En fil skapas per unikt O-nummer i läget separata program.
 - Underprogram avslutas med `M17`.
@@ -416,8 +418,7 @@ i användarens lokala SubGlyph-katalog:
 
 ## Installation och distributioner
 
-Hämta färdiga binärer och kontrollsummor från **Releases** på projektets
-GitHub-sida när releasen har publicerats. Binärer ingår inte i källkodsrepot.
+Hämta färdiga binärer och kontrollsummor från [GitHub Releases](https://github.com/farfarspelar/SubGlyph-2026/releases) när releasen har publicerats. Binärer ingår inte i källkodsrepot.
 Nedanstående filnamn motsvarar lokala byggresultat i `dist/`.
 
 ### Linux
@@ -532,6 +533,8 @@ inkluderar samma programikon i applikationspaketet.
 - `packaging/linux/SubGlyph.desktop` — Linux-menyintegration.
 
 ## Kända begränsningar i version 1.11
+
+- SIEMENS SINUMERIK-stödet är implementerat men har ännu inte verifierats på en fysisk Siemens-styrd maskin.
 
 - Böjd text med böjningsradie postas ännu inte på frontplan.
 - Endast vissa tecken har explicita G2/G3-bågar; övriga kurvor använder G1.

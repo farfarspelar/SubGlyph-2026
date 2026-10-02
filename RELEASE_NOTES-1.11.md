@@ -20,6 +20,8 @@
 rotationsfrigång, sammanhängande små cirkelbågar, spegling och oförändrad
 XZ+C-postning. G138/G136 kontrolleras vara frånvarande i NC-utmatningen.
 Den nya XYZ+C-postningen har ännu inte verifierats på maskin.
+SIEMENS SINUMERIK-stödet är implementerat men har ännu inte verifierats
+på en fysisk Siemens-styrd maskin.
 
 Huvudprogrammet ansvarar för G138/G136, C-axelaktivering, frigång,
 absolut programmering och enhetsläge. G19 och G94 ligger kvar efter
