@@ -31,6 +31,8 @@ class MantleMarking:
     character_spacing: float = 0.0
     font_path: str | None = None
     turret: str = "Lower"
+    horizontal_offset: float = 0.0
+    layout_width: float | None = None
 
 
 @dataclass(frozen=True)
@@ -52,6 +54,8 @@ class FrontMarking:
     character_spacing: float = 0.0
     font_path: str | None = None
     turret: str = "Lower"
+    horizontal_offset: float = 0.0
+    layout_width: float | None = None
 
 
 def effective_mirror(mirrored: bool, turret: str) -> float:
@@ -72,7 +76,7 @@ def front_marking_blocks(marking: FrontMarking) -> list[str]:
 
     def mapped(point: tuple[float, float]) -> tuple[float, float]:
         horizontal, vertical = point
-        horizontal *= mirror
+        horizontal = (horizontal + marking.horizontal_offset) * mirror
         return (
             anchor_x + horizontal * math.cos(angle) - vertical * math.sin(angle),
             anchor_y + horizontal * math.sin(angle) + vertical * math.cos(angle),
@@ -154,7 +158,8 @@ def mantle_marking_blocks(
     base_angle = 0.0 if along_z else math.pi / 2
     angle = base_angle + math.radians(marking.rotation_degrees)
     mirror = effective_mirror(marking.mirrored, marking.turret)
-    text_width = marking_text_width(marking.text, marking.width, marking.character_spacing)
+    text_width = (marking.layout_width if marking.layout_width is not None else
+                  marking_text_width(marking.text, marking.width, marking.character_spacing))
     z_origin = (
         (abs(math.cos(angle)) * text_width + abs(math.sin(angle)) * marking.height) / 2
         if along_z else 0.0
@@ -177,7 +182,7 @@ def mantle_marking_blocks(
     for stroke in strokes:
         mapped: list[tuple[float, float]] = []
         for horizontal, vertical in stroke:
-            horizontal *= mirror
+            horizontal = (horizontal + marking.horizontal_offset) * mirror
             z_offset = (horizontal * math.cos(angle)
                         + vertical * math.cos(angle + math.pi / 2) + z_origin)
             z = z_sign * (marking.z + z_offset)
@@ -248,7 +253,7 @@ def mantle_marking_blocks(
         ):
             def map_planar(point: tuple[float, float]) -> tuple[float, float]:
                 horizontal, vertical = point
-                horizontal *= mirror
+                horizontal = (horizontal + marking.horizontal_offset) * mirror
                 return (
                     z_sign * (marking.z + (
                         horizontal * math.cos(angle)

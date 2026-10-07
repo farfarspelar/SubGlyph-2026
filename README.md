@@ -2,6 +2,11 @@
 
 **Version 1.11 — current stable release**
 
+This branch contains **1.12-test**, an evaluation version with administrator
+permissions, dynamic FANUC serial numbers and static date markings. See
+[TESTVERSION-1.12.md](TESTVERSION-1.12.md) for usage, verification and limitations.
+The documentation below describes the stable 1.11 release.
+
 SubGlyph 2026 is a free graphical NC generator for marking and engraving.
 It generates subprograms for FANUC, OKUMA OSP and SIEMENS SINUMERIK using a
 single-stroke font and displays the markings on the workpiece in an interactive

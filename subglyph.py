@@ -14,13 +14,15 @@ from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from email.message import EmailMessage
 from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, messagebox, simpledialog, ttk
+from access_control import AccessControl
 from typing import Callable, Iterable
 from PIL import Image, ImageDraw, ImageFont
 from nc_geometry import (
     FrontMarking, MantleMarking, front_marking_blocks, mantle_marking_blocks,
     marking_text_width,
 )
+from dynamic_marking import DynamicMarking, FanucDynamicPost, KINDS, DATE_FORMATS, format_date
 from system_font import system_fonts
 from additional_translations import (
     BOSNIAN_SUPPORT_TRANSLATIONS,
@@ -30,7 +32,7 @@ from additional_translations import (
 )
 
 
-APP_VERSION = "1.11"
+APP_VERSION = "1.12-test"
 PRODUCT_NAME = "SubGlyph 2026"
 PROJECT_FORMAT_VERSION = 2
 MARKING_ROW_COUNT = 6
@@ -966,6 +968,8 @@ class SubGlyphApp(tk.Tk):
         self.activity_log: list[str] = []
         self.record_activity("Programmet startades")
         self.dialog_directories = load_directory_history()
+        self.is_admin = False
+        self.access_control = AccessControl(app_data_directory() / "permissions.json")
 
         self.project_name = tk.StringVar()
         self.language = tk.StringVar(value="Svenska")
@@ -1000,6 +1004,7 @@ class SubGlyphApp(tk.Tk):
         self.flip_text = tk.BooleanVar(value=False)
         self.mirror_text = tk.BooleanVar(value=False)
         self.marking_z = tk.StringVar(value="0")
+        self.dynamic_markings = [DynamicMarking() for _ in range(MARKING_ROW_COUNT)]
         self.markings = [tk.StringVar() for _ in range(MARKING_ROW_COUNT)]
         self.marking_placements = [tk.StringVar(value="Ny rad") for _ in range(MARKING_ROW_COUNT)]
         self.marking_z_values = [tk.StringVar(value="0") for _ in range(MARKING_ROW_COUNT)]
@@ -1038,6 +1043,7 @@ class SubGlyphApp(tk.Tk):
         self._update_configuration()
         # Capture the Swedish source labels before the first language switch.
         self._translate_widgets()
+        self._update_permissions()
 
     def _t(self, source: str) -> str:
         translated = TRANSLATIONS.get(self.language.get(), {}).get(source)
@@ -1116,6 +1122,11 @@ class SubGlyphApp(tk.Tk):
         self.file_menu = file_menu
         self.info_menu = info_menu
         self.about_menu = about_menu
+        self.permission_menu = tk.Menu(menu, tearoff=False)
+        self.permission_menu.add_command(label="Operatör", command=self._become_operator)
+        self.permission_menu.add_command(label="Admin…", command=self._login_admin)
+        self.permission_menu.add_separator()
+        self.permission_menu.add_command(label="Ändra adminlösenord…", command=self._change_admin_password)
         # Use the in-window menu row below. Attaching this menu natively as well
         # creates a duplicate row on desktops that render Tk menus themselves.
         self.configure(menu="")
@@ -1135,10 +1146,63 @@ class SubGlyphApp(tk.Tk):
         help_button.pack(side="left", padx=(8, 0))
         about_button = ttk.Menubutton(frame, text=self._t("Om"), menu=self.about_menu)
         about_button.pack(side="left", padx=(8, 0))
+        self.permission_button = ttk.Menubutton(frame, menu=self.permission_menu)
+        self.permission_button.pack(side="right")
         self.menu_button_frame = frame
+        self._update_permissions()
+
+    def _update_permissions(self):
+        if hasattr(self, "permission_button"):
+            self.permission_button.configure(text="Behörighet: " + ("Admin" if self.is_admin else "Operatör"))
+            self.permission_menu.entryconfigure("Ändra adminlösenord…", state="normal" if self.is_admin else "disabled")
+        for index, entry in enumerate(getattr(self, "marking_text_entries", [])):
+            locked = not self.is_admin and self.dynamic_markings[index].kind != "Statisk text"
+            entry.configure(state="readonly" if locked else "normal")
+        for button in getattr(self, "marking_type_buttons", []):
+            button.configure(state="normal" if self.is_admin else "disabled")
+
+    def _become_operator(self):
+        self.is_admin = False
+        self._update_permissions()
+
+    def _login_admin(self):
+        password = simpledialog.askstring("Admin", "Adminlösenord:", show="*", parent=self)
+        if password is None:
+            return
+        if not self.access_control.check_password(password):
+            messagebox.showerror("Admin", "Fel lösenord.", parent=self)
+            return
+        self.is_admin = True
+        self._update_permissions()
+
+    def _change_admin_password(self):
+        if not self.is_admin:
+            return
+        current = simpledialog.askstring("Ändra adminlösenord", "Nuvarande lösenord:", show="*", parent=self)
+        if current is None:
+            return
+        if not self.access_control.check_password(current):
+            messagebox.showerror("Admin", "Fel lösenord.", parent=self)
+            return
+        password = simpledialog.askstring("Ändra adminlösenord", "Nytt lösenord:", show="*", parent=self)
+        if password is None:
+            return
+        confirmation = simpledialog.askstring("Ändra adminlösenord", "Upprepa nytt lösenord:", show="*", parent=self)
+        if confirmation is None:
+            return
+        if password != confirmation:
+            messagebox.showerror("Admin", "Lösenorden stämmer inte överens.", parent=self)
+            return
+        try:
+            self.access_control.set_password(password)
+        except (OSError, ValueError) as error:
+            messagebox.showerror("Admin", str(error), parent=self)
+            return
+        messagebox.showinfo("Admin", "Adminlösenordet har ändrats.", parent=self)
 
     def _project_data(self) -> dict[str, object]:
         return {
+            "dynamic_markings": [item.to_dict() for item in getattr(self, "dynamic_markings", [])],
             "format_version": PROJECT_FORMAT_VERSION,
             "language": self.language.get(),
             "units": self.units.get(),
@@ -1269,6 +1333,11 @@ class SubGlyphApp(tk.Tk):
         self.record_activity("Projekt laddat")
 
     def _apply_project_data(self, data: dict[str, object]) -> None:
+        self.dynamic_markings = [DynamicMarking() for _ in range(MARKING_ROW_COUNT)]
+        for index, item in enumerate(data.get("dynamic_markings", [])):
+            if index >= MARKING_ROW_COUNT or not isinstance(item, dict):
+                raise ValueError("Ogiltiga inställningar för dynamisk märkning.")
+            self.dynamic_markings[index] = DynamicMarking.from_dict(item)
         scalar_variables = {
             "language": self.language,
             "units": self.units,
@@ -1381,6 +1450,10 @@ class SubGlyphApp(tk.Tk):
         self._update_configuration()
         self._update_program_mode()
         self._update_font_mode()
+
+        for config in self.dynamic_markings:
+            self.access_control.restore_verification(config, self.control_system.get())
+        self._update_permissions()
 
     def show_about(self) -> None:
         messagebox.showinfo(
@@ -1754,11 +1827,17 @@ class SubGlyphApp(tk.Tk):
         self.z_position_entries: list[ttk.Entry] = []
         self.z_position_tooltips: list[HoverTooltip] = []
         self.z_direction_combos: list[ttk.Combobox] = []
+        self.marking_text_entries = []
+        self.marking_type_buttons = []
         for index, variable in enumerate(self.markings, start=1):
-            ttk.Label(tab, text=f"Märktext {index}:").grid(
+            type_button = ttk.Button(tab, text=f"Märktext {index}…", command=lambda i=index - 1: self._edit_dynamic(i))
+            self.marking_type_buttons.append(type_button)
+            type_button.grid(
                 row=index + 1, column=0, sticky="w", padx=(0, 10), pady=6
             )
-            ttk.Entry(tab, textvariable=variable).grid(
+            text_entry = ttk.Entry(tab, textvariable=variable)
+            self.marking_text_entries.append(text_entry)
+            text_entry.grid(
                 row=index + 1, column=1, sticky="ew", pady=6
             )
             program_entry = ttk.Entry(
@@ -2701,6 +2780,9 @@ class SubGlyphApp(tk.Tk):
         self.record_activity("Försökte generera NC-program")
         try:
             self._validate_geometry()
+            dynamic = self._dynamic_safety()
+            if dynamic and not self._confirm_dynamic(dynamic):
+                return
             header = self._build_nc_header()
             active_indices = [
                 index for index, text in enumerate(self.markings) if text.get().strip()
@@ -2879,7 +2961,7 @@ class SubGlyphApp(tk.Tk):
                     c_value,
                 )
             body.extend(
-                posted_mantle_marking_blocks(
+                self._row_blocks(index,
                     MantleMarking(
                         text=text,
                         c_degrees=c_value,
@@ -2904,7 +2986,6 @@ class SubGlyphApp(tk.Tk):
                         font_path=self._selected_font_path(),
                         turret=self.turret.get(),
                     ),
-                    self.control_system.get(),
                 )
             )
             body.append("")
@@ -2931,7 +3012,7 @@ class SubGlyphApp(tk.Tk):
             index_c = previous_index_c is None or not math.isclose(
                 c_value, previous_index_c, abs_tol=1e-9
             )
-            body.extend(front_marking_blocks(FrontMarking(
+            body.extend(self._row_blocks(index, FrontMarking(
                 text=text,
                 x=float(self.marking_z_values[index].get().replace(",", ".")),
                 y=float(self.marking_y_values[index].get().replace(",", ".")),
@@ -2954,8 +3035,128 @@ class SubGlyphApp(tk.Tk):
             previous_index_c = c_value
         return body
 
+    def _edit_dynamic(self, index):
+        if not self.is_admin:
+            return
+        config = self.dynamic_markings[index]
+        window = tk.Toplevel(self)
+        window.title("Märktyp – test 1.12")
+        fields = {}
+        values = {"kind": config.kind, "start": str(config.start), "digits": str(config.digits),
+                  "variable": config.variable, "position_variable": config.position_variable,
+                  "date_format": config.date_format, "date": self.markings[index].get()}
+        labels = {"kind": "Märktyp", "start": "Startvärde (separat initiering)", "digits": "Antal siffror (1–8)",
+                  "variable": "Serienummervariabel", "position_variable": "Arbetsvariabel för teckenposition",
+                  "date_format": "Datumformat", "date": "Fast datum (YYYY-MM-DD) eller fri text"}
+        for row, (key, value) in enumerate(values.items()):
+            fields[key] = tk.StringVar(value=value)
+            ttk.Label(window, text=labels[key]).grid(row=row, column=0, sticky="w", padx=8, pady=4)
+            choices = KINDS if key == "kind" else tuple(DATE_FORMATS) if key == "date_format" else None
+            widget = (ttk.Combobox(window, textvariable=fields[key], values=choices, state="readonly")
+                      if choices else ttk.Entry(window, textvariable=fields[key]))
+            widget.grid(row=row, column=1, padx=8, pady=4)
+        zeros = tk.BooleanVar(value=config.leading_zeros)
+        verified = tk.BooleanVar(value=config.verified)
+        for key in ("variable", "position_variable"):
+            fields[key].trace_add("write", lambda *_: verified.set(False))
+        ttk.Checkbutton(window, text="Ledande nollor", variable=zeros).grid(row=7, columnspan=2, sticky="w")
+        ttk.Checkbutton(window, text="Jag har verifierat mot maskinens dokumentation att båda dessa variabler är säkra att använda.",
+                        variable=verified).grid(row=8, columnspan=2, sticky="w", padx=8)
+        ttk.Label(window, text="FANUC Custom Macro B krävs. Arbetsvariabeln skrivs över. Maskindatum stöds inte ännu.").grid(row=9, columnspan=2, padx=8, pady=8)
+        def apply():
+            if not self.is_admin:
+                window.destroy()
+                return
+            try:
+                new = DynamicMarking(kind=fields["kind"].get(), start=int(fields["start"].get()),
+                                     digits=int(fields["digits"].get()), leading_zeros=zeros.get(),
+                                     variable=fields["variable"].get(), position_variable=fields["position_variable"].get(),
+                                     date_format=fields["date_format"].get())
+                if verified.get():
+                    new.verify()
+                text = self.markings[index].get()
+                if new.kind == "Serienummer":
+                    from dynamic_marking import serial_digits
+                    serial_digits(new.start, new.digits)
+                    text = str(new.start).zfill(new.digits)
+                elif new.kind == "Fast datum":
+                    text = fields["date"].get()
+                    try:
+                        text = format_date(text, new.date_format)
+                    except ValueError:
+                        pass  # Explicit fixed text is also permitted.
+                elif new.kind == "Maskindatum":
+                    text = "MASKINDATUM"
+                if new.kind == "Serienummer" and new.verified:
+                    new.validate(self.control_system.get())
+                    self.access_control.approve(new, self.control_system.get())
+                self.dynamic_markings[index] = new
+                self.markings[index].set(text)
+                window.destroy()
+                self._update_permissions()
+                self._draw_preview()
+            except (OSError, ValueError, KeyError) as error:
+                messagebox.showerror("Ogiltiga inställningar", str(error), parent=window)
+        ttk.Button(window, text="Spara", command=apply).grid(row=10, column=1, pady=8)
+        ttk.Button(window, text="Avbryt", command=window.destroy).grid(row=10, column=0, pady=8)
+        window.transient(self)
+        window.grab_set()
+
+    def _dynamic_safety(self):
+        active = []
+        for index, config in enumerate(getattr(self, "dynamic_markings", [])):
+            if config.kind in ("Serienummer", "Maskindatum"):
+                config.validate(self.control_system.get())
+                if self.marking_bending_radii[index].get().strip():
+                    raise ValueError("Dynamisk märkning stöder inte böjd text ännu.")
+                active.append(config)
+        counters = [config.variable for config in active]
+        scratch = {config.position_variable for config in active}
+        if len(counters) != len(set(counters)):
+            raise ValueError("Använd en serienummerrad per räknare; samma räknare får inte ökas flera gånger.")
+        if set(counters) & scratch:
+            raise ValueError("En arbetsvariabel får inte vara en annan rads serienummerräknare.")
+        return active
+
+    def _confirm_dynamic(self, configs):
+        window = tk.Toplevel(self)
+        window.title("VARNING – maskinspecifik NC-kod")
+        accepted = [False]
+        text = ("Den här NC-koden innehåller makron och/eller maskinspecifika variabler.\n\n"
+                "Fel variabel eller inkompatibel makrokod kan påverka maskinens funktion.\n"
+                "Kontrollera programmet och vald variabel mot dokumentationen för aktuell maskin och styrning innan körning.\n\n"
+                + self.control_system.get() + "\n" + "\n".join(
+                    f"{c.kind}: {c.variable}; arbetsvariabel {c.position_variable}" for c in configs))
+        ttk.Label(window, text=text, wraplength=560).pack(padx=20, pady=20)
+        def approve():
+            accepted[0] = True
+            window.destroy()
+        ttk.Button(window, text="Avbryt", command=window.destroy).pack(side="left", padx=20, pady=15)
+        ttk.Button(window, text="Jag har verifierat – generera", command=approve).pack(side="right", padx=20, pady=15)
+        window.transient(self)
+        window.grab_set()
+        self.wait_window(window)
+        return accepted[0]
+
+    def _row_blocks(self, index, marking):
+        geometry = (front_marking_blocks if isinstance(marking, FrontMarking) else
+                    lambda m: posted_mantle_marking_blocks(m, self.control_system.get()))
+        configs = getattr(self, "dynamic_markings", [])
+        config = configs[index] if configs else DynamicMarking()
+        config.validate(self.control_system.get())
+        if config.kind == "Serienummer":
+            if marking.c_axis != "C":
+                raise ValueError("Dynamisk märkning stöder endast C som rotationsaxel i testversionen.")
+            return FanucDynamicPost().blocks(config, marking, geometry, index)
+        return geometry(marking)
+
     def _build_nc_header(self) -> list[str]:
-        return []
+        configs = self._dynamic_safety()
+        if not configs:
+            return []
+        return ["(*** VARNING - MASKINSPECIFIK MAKROKOD ***)",
+                "(VERIFIERA VARIABEL OCH MAKROSTOD FORE KORNING)",
+                *[f"(SERIENUMMER {c.variable} ARBETSVARIABEL {c.position_variable})" for c in configs]]
 
 
 def resource_path(filename: str) -> Path:
