@@ -1,4 +1,4 @@
-# SubGlyph 2026 1.12-test
+# SubGlyph 2026 1.13-test
 
 Källkodsversion för utvärdering. Ingen release eller maskinkörning har gjorts.
 
@@ -89,11 +89,11 @@ spärrad generering och varningsaktivering vid varje generering.
 
 576 statiska geometrijämförelser mot ursprunglig HEAD gav identiska NC-block,
 över front/mantel, båda mantelplanen, rotationer, revolvrar och speglingar.
-Versionskommentaren är avsiktligt ändrad från 1.11 till 1.12-test.
+Versionskommentaren är avsiktligt ändrad från 1.12-test till 1.13-test.
 Python-kompilering och `git diff --check` passerar.
 
 Nästa steg: fysisk/simulatorbaserad styrningsprovning, verifierade datumprofiler,
 separata Okuma/Siemens-poster, prefix/suffix, fler axelnamn, systemfonter,
 översättningar av nya dialoger och visuell GUI-verifiering.
 GUI-logik har testats utan grafisk display; verkliga dialoger har inte visuellt granskats.
-Ingen installerbar testbinär har byggts.
+Linux-distributionen har byggts för 1.13-test. Den är inte provkörd på en maskin.

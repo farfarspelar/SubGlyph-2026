@@ -315,19 +315,19 @@ class CreateNcProgramTests(unittest.TestCase):
     def test_creates_program_with_comment(self) -> None:
         self.assertEqual(
             create_nc_program("2541", "testprogram", generated_at=datetime(2026, 8, 12, 17, 45, 6)),
-            "%\nO2541(testprogram)\n(SKAPAT MED SUBGLYPH VERSION 1.12-test)\n(SKAPAT 2026-08-12 17:45:06)\n\nM99\n%\n",
+            "%\nO2541(testprogram)\n(SKAPAT MED SUBGLYPH VERSION 1.13-test)\n(SKAPAT 2026-08-12 17:45:06)\n\nM99\n%\n",
         )
 
     def test_accepts_leading_o(self) -> None:
         self.assertEqual(
             create_nc_program("O2541", generated_at=datetime(2026, 8, 12, 17, 45, 6)),
-            "%\nO2541\n(SKAPAT MED SUBGLYPH VERSION 1.12-test)\n(SKAPAT 2026-08-12 17:45:06)\n\nM99\n%\n",
+            "%\nO2541\n(SKAPAT MED SUBGLYPH VERSION 1.13-test)\n(SKAPAT 2026-08-12 17:45:06)\n\nM99\n%\n",
         )
 
     def test_creates_okuma_subprogram_without_percent_delimiters(self) -> None:
         self.assertEqual(
             create_nc_program("2541", "testprogram", control_system="Okuma", generated_at=datetime(2026, 8, 12, 17, 45, 6)),
-            "O2541(testprogram)\n(SKAPAT MED SUBGLYPH VERSION 1.12-test)\n(SKAPAT 2026-08-12 17:45:06)\nG94\n\nRTS\n",
+            "O2541(testprogram)\n(SKAPAT MED SUBGLYPH VERSION 1.13-test)\n(SKAPAT 2026-08-12 17:45:06)\nG94\n\nRTS\n",
         )
 
     def test_each_okuma_subprogram_overrides_inherited_feed_per_revolution(self) -> None:
@@ -356,7 +356,7 @@ class CreateNcProgramTests(unittest.TestCase):
                 control_system="SIEMENS SINUMERIK (ISO)",
                 generated_at=datetime(2026, 8, 12, 17, 45, 6),
             ),
-            "%\nO2541(testprogram)\n(SKAPAT MED SUBGLYPH VERSION 1.12-test)\n"
+            "%\nO2541(testprogram)\n(SKAPAT MED SUBGLYPH VERSION 1.13-test)\n"
             "(SKAPAT 2026-08-12 17:45:06)\n\nM17\n%\n",
         )
 
@@ -469,7 +469,7 @@ class CreateNcProgramTests(unittest.TestCase):
     def test_adds_comments_only_for_non_empty_markings(self) -> None:
         self.assertEqual(
             create_nc_program("2541", "jobb", ["ABC", "", "123"], generated_at=datetime(2026, 8, 12, 17, 45, 6)),
-            "%\nO2541(jobb)\n(SKAPAT MED SUBGLYPH VERSION 1.12-test)\n(SKAPAT 2026-08-12 17:45:06)\n\n(ABC)\n\n(123)\n\nM99\n%\n",
+            "%\nO2541(jobb)\n(SKAPAT MED SUBGLYPH VERSION 1.13-test)\n(SKAPAT 2026-08-12 17:45:06)\n\n(ABC)\n\n(123)\n\nM99\n%\n",
         )
 
     def test_rejects_parentheses_in_marking(self) -> None:
@@ -787,7 +787,7 @@ class CreateNcProgramTests(unittest.TestCase):
         content = create_nc_collection(
             (("1200", "", ["(RAD 1)"]), ("1201", "", ["(RAD 2)"]))
         )
-        self.assertEqual(content.count("(SKAPAT MED SUBGLYPH VERSION 1.12-test)"), 2)
+        self.assertEqual(content.count("(SKAPAT MED SUBGLYPH VERSION 1.13-test)"), 2)
 
     def test_subprogram_does_not_set_modal_units(self) -> None:
         content = create_nc_program("1200", body_lines=["G1 X49.5"])
@@ -800,12 +800,12 @@ class CreateNcProgramTests(unittest.TestCase):
         finnish = create_nc_program("1200", generated_at=generated_at, language="Suomi")
         bosnian = create_nc_program("1200", generated_at=generated_at, language="Bosanski")
         polish = create_nc_program("1200", generated_at=generated_at, language="Polski")
-        self.assertIn("(CREATED WITH SUBGLYPH VERSION 1.12-test)", english)
+        self.assertIn("(CREATED WITH SUBGLYPH VERSION 1.13-test)", english)
         self.assertIn("(CREATED 2026-08-12 17:45:06)", english)
-        self.assertIn("(LUOTU SUBGLYPH-VERSIOLLA 1.12-test)", finnish)
+        self.assertIn("(LUOTU SUBGLYPH-VERSIOLLA 1.13-test)", finnish)
         self.assertIn("(LUOTU 2026-08-12 17:45:06)", finnish)
-        self.assertIn("(KREIRANO POMOCU SUBGLYPH VERZIJE 1.12-test)", bosnian)
-        self.assertIn("(UTWORZONO ZA POMOCA SUBGLYPH W WERSJI 1.12-test)", polish)
+        self.assertIn("(KREIRANO POMOCU SUBGLYPH VERZIJE 1.13-test)", bosnian)
+        self.assertIn("(UTWORZONO ZA POMOCA SUBGLYPH W WERSJI 1.13-test)", polish)
 
     def test_new_languages_cover_all_translated_text(self) -> None:
         reference_ui = set(subglyph.TRANSLATIONS["English"])

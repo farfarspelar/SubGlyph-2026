@@ -32,7 +32,7 @@ from additional_translations import (
 )
 
 
-APP_VERSION = "1.12-test"
+APP_VERSION = "1.13-test"
 PRODUCT_NAME = "SubGlyph 2026"
 PROJECT_FORMAT_VERSION = 2
 MARKING_ROW_COUNT = 6
@@ -3040,7 +3040,7 @@ class SubGlyphApp(tk.Tk):
             return
         config = self.dynamic_markings[index]
         window = tk.Toplevel(self)
-        window.title("Märktyp – test 1.12")
+        window.title("Märktyp – test 1.13")
         fields = {}
         values = {"kind": config.kind, "start": str(config.start), "digits": str(config.digits),
                   "variable": config.variable, "position_variable": config.position_variable,

@@ -68,7 +68,10 @@ def front_marking_blocks(marking: FrontMarking) -> list[str]:
     """Generate planar XY engraving with Z as depth and C as index only."""
     c_angle = math.radians(marking.c_degrees)
     angle = math.radians(marking.rotation_degrees + marking.c_degrees)
-    mirror = effective_mirror(marking.mirrored, marking.turret)
+    # Front-face orientation is machine-facing: the UI's explicit mirror flag
+    # is the required correction for the upper MSP setup. Do not apply the
+    # automatic upper-turret compensation used by cylindrical marking here.
+    mirror = -1.0 if marking.mirrored else 1.0
     lines = [f"({marking.text})"]
     first_stroke = True
     anchor_x = marking.x * math.cos(c_angle) - marking.y * math.sin(c_angle)

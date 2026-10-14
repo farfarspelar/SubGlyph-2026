@@ -2,9 +2,11 @@
 
 **Version 1.11 — current stable release**
 
-This branch contains **1.12-test**, an evaluation version with administrator
+This branch contains **1.13-test**, an evaluation version with administrator
 permissions, dynamic FANUC serial numbers and static date markings. See
-[TESTVERSION-1.12.md](TESTVERSION-1.12.md) for usage, verification and limitations.
+[TESTVERSION-1.13.md](TESTVERSION-1.13.md) for usage, verification and limitations.
+The Linux evaluation build produces `dist/SubGlyph-2026-1.13-test-linux-x86_64`
+and `dist/SubGlyph-2026-1.13-test-linux-x86_64.tar.gz`.
 The documentation below describes the stable 1.11 release.
 
 SubGlyph 2026 is a free graphical NC generator for marking and engraving.
